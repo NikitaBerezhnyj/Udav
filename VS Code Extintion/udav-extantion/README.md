@@ -1,6 +1,6 @@
-# niklang-extantion README
+# udav-extantion README
 
-This is the README for your extension "niklang-extantion". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "udav-extantion". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
