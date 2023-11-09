@@ -1,0 +1,29 @@
+{
+  "name": "udav-extantion",
+  "displayName": "Udav Extantion",
+  "description": "Udav Programming Language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.83.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "Udav",
+      "aliases": ["Udav", "Udav"],
+      "extensions": [".udav"],
+      "configuration": "./language-configuration.json",
+      "icon": {
+        "light": "icon-udav.png",
+        "dark": "icon-udav.png"
+      }
+    }],
+    "grammars": [{
+      "language": "Udav",
+      "scopeName": "source.nl",
+      "path": "./syntaxes/Udav.tmLanguage.json"
+    }]
+  }
+}

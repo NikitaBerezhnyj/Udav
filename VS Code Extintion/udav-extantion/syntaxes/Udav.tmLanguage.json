@@ -1,0 +1,54 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Udav",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#comments"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.Udav",
+				"match": "\\b(друк|ввід|якщо|інакше|інакше_якщо|поки|для_кожного|повернути|функція|ціле|дійсне|рядок|логічне|символ)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.Udav",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.Udav",
+					"match": "\\\\."
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.assignment.Udav",
+					"match": "\\b(\\+=|-=|\\*=|\\+\\+|--|==|!=|<|>|<=|>=)\\b"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.Udav",
+					"match": "//.*$"
+				}
+			]
+		}
+	},
+	"scopeName": "source.udav"
+}
