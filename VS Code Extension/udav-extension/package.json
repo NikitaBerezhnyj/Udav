@@ -22,7 +22,7 @@
     }],
     "grammars": [{
       "language": "Udav",
-      "scopeName": "source.nl",
+      "scopeName": "source.udav",
       "path": "./syntaxes/Udav.tmLanguage.json"
     }]
   }
