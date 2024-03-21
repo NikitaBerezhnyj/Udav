@@ -310,7 +310,7 @@ ___
 
 ___
 
-***[Дивитись код IDE]([./Based%20IDE/](https://github.com/NikitaBerezhnyj/NUB_IDE))***
+***[Дивитись код IDE](https://github.com/NikitaBerezhnyj/NUB_IDE)***
 
 ## Розширення для VS code
 
@@ -650,7 +650,7 @@ Not ready yet
 
 ___
 
-***[See the IDE code](./Udav%20IDE/)***
+***[See the IDE code](https://github.com/NikitaBerezhnyj/NUB_IDE)***
 
 ## Extensions for VS code
 
