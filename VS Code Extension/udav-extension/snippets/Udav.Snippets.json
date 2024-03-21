@@ -1,0 +1,45 @@
+{
+  "Output to the console / Вивід в консоль": {
+    "prefix": "друк",
+    "body": ["друк(\"$1\")"],
+    "description": "Output to the console / Вивід в консоль"
+  },
+  "User input / Користувацький ввід": {
+    "prefix": "ввід",
+    "body": ["ввід()"],
+    "description": "User input / Користувацький ввід"
+  },
+  "Conditional construct if-else_if-else / Умовна конструкція якщо-інакше_якщо-інакше": {
+    "prefix": "якщо",
+    "body": [
+      "якщо ${1:умова}:",
+      "    ${2:дії}",
+      "інакшеЯкщо ${3:умова}:",
+      "    ${4:дії}",
+      "інакше:",
+      "    ${5:дії}"
+    ],
+    "description": "Conditional construct if-else_if-else / Умовна конструкція якщо-інакше_якщо-інакше"
+  },
+  "Loop while / Цикл поки": {
+    "prefix": "поки",
+    "body": ["поки ${1:умова}:", "    ${2:тіло}"],
+    "description": "Loop while / Цикл поки"
+  },
+  "Loop for / Цикл для": {
+    "prefix": "для",
+    "body": ["для ${1:параметр} = 0 до ${2:ліміт}:", "    ${3:тіло}"],
+    "description": "Loop for / Цикл для"
+  },
+  "Declaring a function / Оголошення функції": {
+    "prefix": "функція",
+    "body": ["функція ${1:назва}(${2:параметр}):", "    ${3:тіло}"],
+    "description": "Declaring a function / Оголошення функції"
+  },
+
+  "Creating a class / Створення класу": {
+    "prefix": "клас",
+    "body": ["клас ${1:назва}:", "    ${3:тіло}"],
+    "description": "Creating a class / Створення класу"
+  }
+}

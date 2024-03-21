@@ -8,9 +8,59 @@
 
 using namespace std;
 
+// Оголошення прототипів допоміжних функцій
+vector<string> tokenize(const string& line);
+string translate(const string& word);
+string translateLine(const string& line);
 void initialize();
 void uninitialize();
 void displayHelp();
+
+// Ключові слова Удава та їх переклади на Python
+unordered_map<string, string> keywords = {
+    {"друк", "print"},
+    {"ввід", "input"},
+    {"якщо", "if"},
+    {"інакше", "else"},
+    {"інакшеЯкщо", "elif"},
+    {"правда", "True"},
+    {"брехня", "False"},
+    {"або", "or"},
+    {"не", "not"},
+    {"та", "and"},
+    {"для", "for"},
+    {"поки", "while"},
+    {"функція", "def"},
+    {"зупинити", "break"},
+    {"продовжити", "continue"},
+    {"повернути", "return"},
+    {"пропустити", "pass"},
+    {"клас", "class"},
+    {"як", "as"},
+    {"від", "from"},
+    {"отримати", "import"},
+    {"очікувати", "await"},
+    {"ніщо", "None"},
+    {"окрім", "except"},
+    {"до", "in"},
+    {"викинути", "raise"},
+    {"нарешті", "finally"},
+    {"існує", "is"},
+    {"лямбда", "lambda"},
+    {"спробувати", "try"},
+    {"глобально", "global"},
+    {"неЛокально", "nonlocal"},
+    {"ствердити", "assert"},
+    {"вилучити", "del"},
+    {"застосовуючи", "with"},
+    {"асинхронний", "async"},
+    {"генерувати", "yield"},
+    {"ціле", "int"},
+    {"дійсне", "float"},
+    {"рядок", "str"},
+    {"діапазон", "range"},
+    {"себе", "self"},
+};
 
 int main(int argc, char *argv[])
 {
@@ -51,52 +101,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Ключові слова удава та їх переклади на python
-    std::unordered_map<std::string, std::string> keywordMapping = {
-        {"друк", "print"},
-        {"ввід", "input"},
-        {"якщо", "if"},
-        {"інакше", "else"},
-        {"інакше_якщо", "elif"},
-        {"правда", "True"},
-        {"брехня", "False"},
-        {"або", "or"},
-        {"не", "not"},
-        {"і", "and"},
-        {"для_будь_якого", "for"},
-        {"поки", "while"},
-        {"функція", "def"},
-        {"припинити", "break"},
-        {"продовжити", "continue"},
-        {"повернути", "return"},
-        {"пропуск", "pass"},
-        {"клас", "class"},
-        {"як", "as"},
-        {"з", "from"},
-        {"отримати", "import"},
-        {"заочно", "await"},
-        {"жодний", "None"},
-        {"крім", "except"},
-        {"в", "in"},
-        {"підняти", "raise"},
-        {"остаточно", "finally"},
-        {"є", "is"},
-        {"лямбда", "lambda"},
-        {"спробувати", "try"},
-        {"не_локально", "nonlocal"},
-        {"утверджувати", "assert"},
-        {"видалити", "del"},
-        {"глобально", "global"},
-        {"з", "with"},
-        {"асинхронний", "async"},
-        {"здобути", "yield"},
-        {"ціле_число", "int"},
-        {"дробове_число", "float"},
-        {"рядок", "str"},
-        {"границях", "range"},
-        {"своє", "self"},
-    };
-
     // Відкриття вхідного файлу
     std::ifstream inputFile(inputFileName);
     if (!inputFile.is_open()) {
@@ -113,18 +117,8 @@ int main(int argc, char *argv[])
 
     // Зчитування та переклад коду
     std::string line;
-    while (std::getline(inputFile, line)) {
-        std::istringstream iss(line);
-        std::string word;
-
-        // Переклад ключових слів у кожному рядку коду
-        while (iss >> word) {
-            auto it = keywordMapping.find(word);
-            if (it != keywordMapping.end()) {
-                line.replace(line.find(word), word.length(), it->second);
-            }
-        }
-        outputFile << line << std::endl;
+    while (getline(inputFile, line)) {
+        outputFile << translateLine(line) << endl;
     }
     
     // Закриття файлів
@@ -137,16 +131,58 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+// Функція для токенізації тексту
+vector<string> tokenize(const string& line) {
+    vector<string> tokens;
+    stringstream ss(line);
+    string token;
+    while (ss >> token) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+// Функція для перекладу токенів
+string translate(const string& word) {
+    auto it = keywords.find(word);
+    if (it != keywords.end()) {
+        return it->second;
+    }
+    return word;
+}
+
+// Функція перекладу цілого рядка
+string translateLine(const string& line) {
+    stringstream translatedLine;
+    string word;
+    for (char c : line) {
+        if (c == ' ' || c == '\t' || ispunct(c)) {
+            if (!word.empty()) {
+                translatedLine << translate(word) << c;
+                word.clear();
+            } else {
+                translatedLine << c;
+            }
+        } else {
+            word += c;
+        }
+    }
+    if (!word.empty()) {
+        translatedLine << translate(word);
+    }
+    return translatedLine.str();
+}
+
 // Функція для ініціалізації
 void initialize() {
     // Перевіряємо, чи існує файл udav у usr/bin
     if (std::filesystem::exists("/usr/bin/udav")) {
         // Файл udav існує
-        std::cout << "udav is already initialised" << std::endl;
+        std::cout << "udav вже ініціалізовано" << std::endl;
     } else {
         // Файл udav не існує
         system("sudo cp udav /usr/bin");
-        std::cout << "udav initialised" << std::endl;
+        std::cout << "udav ініціалізовано" << std::endl;
     }
 }
 
@@ -157,10 +193,10 @@ void uninitialize() {
     {
         // Файл udav існує в usr/bin
         system("sudo rm /usr/bin/udav");
-        std::cout << "udav uninitialised" << std::endl;
+        std::cout << "ініціалізацію udav скасовано" << std::endl;
     } else {
         // Файл udav не існує в usr/bin
-        std::cout << "udav is not initialised, you do not need to use --uninit" << std::endl;
+        std::cout << "udav не ініціалізовано, тож вам не потрібно використовувати --uninit" << std::endl;
     }
 }
 

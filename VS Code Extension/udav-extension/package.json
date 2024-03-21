@@ -24,6 +24,13 @@
       "language": "Udav",
       "scopeName": "source.udav",
       "path": "./syntaxes/Udav.tmLanguage.json"
-    }]
+    }],
+    "snippets": [
+      {
+        "language": "Udav",
+        "scopeName": "source.udav",
+        "path": "./snippets/Udav.Snippets.json"
+      }
+    ]
   }
 }
