@@ -9,9 +9,9 @@
 using namespace std;
 
 // Оголошення прототипів допоміжних функцій
-vector<string> tokenize(const string& line);
-string translate(const string& word);
-string translateLine(const string& line);
+vector<string> tokenize(const string &line);
+string translate(const string &word);
+string translateLine(const string &line);
 void initialize();
 void uninitialize();
 void displayHelp();
@@ -59,12 +59,13 @@ unordered_map<string, string> keywords = {
     {"дійсне", "float"},
     {"рядок", "str"},
     {"діапазон", "range"},
-    {"себе", "self"},
+    {"своє", "self"},
 };
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
+    if (argc < 2)
+    {
         std::cerr << "Usage: " << argv[0] << " <input_file> [-o <output_file>]" << std::endl;
         return 1;
     }
@@ -89,11 +90,14 @@ int main(int argc, char *argv[])
     }
 
     // Пошук аргументу "-o" та встановлення імені вихідного файлу
-    for (int i = 2; i < argc; ++i) {
-        if (std::string(argv[i]) == "-o" && i + 1 < argc) {
+    for (int i = 2; i < argc; ++i)
+    {
+        if (std::string(argv[i]) == "-o" && i + 1 < argc)
+        {
             outputFileName = argv[i + 1];
             outputFileName += ".py";
-            for (int j = i; j + 2 < argc; ++j) {
+            for (int j = i; j + 2 < argc; ++j)
+            {
                 argv[j] = argv[j + 2];
             }
             argc -= 2;
@@ -103,24 +107,27 @@ int main(int argc, char *argv[])
 
     // Відкриття вхідного файлу
     std::ifstream inputFile(inputFileName);
-    if (!inputFile.is_open()) {
+    if (!inputFile.is_open())
+    {
         std::cerr << "Unable to open input file: " << inputFileName << std::endl;
         return 1;
     }
 
     // Відкриття вихідного файлу
     std::ofstream outputFile(outputFileName);
-    if (!outputFile.is_open()) {
+    if (!outputFile.is_open())
+    {
         std::cerr << "Unable to open output file: " << outputFileName << std::endl;
         return 1;
     }
 
     // Зчитування та переклад коду
     std::string line;
-    while (getline(inputFile, line)) {
+    while (getline(inputFile, line))
+    {
         outputFile << translateLine(line) << endl;
     }
-    
+
     // Закриття файлів
     inputFile.close();
     outputFile.close();
@@ -132,54 +139,108 @@ int main(int argc, char *argv[])
 }
 
 // Функція для токенізації тексту
-vector<string> tokenize(const string& line) {
+vector<string> tokenize(const string &line)
+{
     vector<string> tokens;
     stringstream ss(line);
     string token;
-    while (ss >> token) {
+    while (ss >> token)
+    {
         tokens.push_back(token);
     }
     return tokens;
 }
 
 // Функція для перекладу токенів
-string translate(const string& word) {
+string translate(const string &word)
+{
     auto it = keywords.find(word);
-    if (it != keywords.end()) {
+    if (it != keywords.end())
+    {
         return it->second;
     }
     return word;
 }
 
 // Функція перекладу цілого рядка
-string translateLine(const string& line) {
+string translateLine(const string &line)
+{
     stringstream translatedLine;
     string word;
-    for (char c : line) {
-        if (c == ' ' || c == '\t' || ispunct(c)) {
-            if (!word.empty()) {
-                translatedLine << translate(word) << c;
-                word.clear();
-            } else {
-                translatedLine << c;
+    bool inString = false;
+    char stringDelim = '\0';
+    bool fString = false;
+
+    auto isFormatString = [&](string::const_iterator it)
+    {
+        return *it == 'f' && (it + 1 != line.cend()) && (*(it + 1) == '\'' || *(it + 1) == '"');
+    };
+
+    for (auto it = line.cbegin(); it != line.cend(); ++it)
+    {
+        if (!inString && isFormatString(it))
+        {
+            fString = true;
+            translatedLine << 'f';
+            translatedLine << '"';
+            ++it;
+        }
+        else if (!inString && (*it == '\'' || *it == '"'))
+        {
+            inString = true;
+            stringDelim = *it;
+            if (fString)
+            {
+                fString = false;
             }
-        } else {
-            word += c;
+            translatedLine << *it;
+        }
+        else if (inString && *it == stringDelim)
+        {
+            inString = false;
+            translatedLine << *it;
+        }
+        else if (inString)
+        {
+            translatedLine << *it;
+        }
+        else if (*it == ' ' || *it == '\t' || ispunct(*it))
+        {
+            if (!word.empty())
+            {
+                translatedLine << translate(word) << *it;
+                word.clear();
+            }
+            else
+            {
+                translatedLine << *it;
+            }
+        }
+        else
+        {
+            word += *it;
         }
     }
-    if (!word.empty()) {
+
+    if (!word.empty())
+    {
         translatedLine << translate(word);
     }
+
     return translatedLine.str();
 }
 
 // Функція для ініціалізації
-void initialize() {
+void initialize()
+{
     // Перевіряємо, чи існує файл udav у usr/bin
-    if (std::filesystem::exists("/usr/bin/udav")) {
+    if (std::filesystem::exists("/usr/bin/udav"))
+    {
         // Файл udav існує
         std::cout << "udav вже ініціалізовано" << std::endl;
-    } else {
+    }
+    else
+    {
         // Файл udav не існує
         system("sudo cp udav /usr/bin");
         std::cout << "udav ініціалізовано" << std::endl;
@@ -187,21 +248,25 @@ void initialize() {
 }
 
 // Функція для скасування ініціалізації
-void uninitialize() {
+void uninitialize()
+{
     // Перевіряємо, чи існує файл udav у usr/bin
     if (std::filesystem::exists("/usr/bin/udav"))
     {
         // Файл udav існує в usr/bin
         system("sudo rm /usr/bin/udav");
         std::cout << "ініціалізацію udav скасовано" << std::endl;
-    } else {
+    }
+    else
+    {
         // Файл udav не існує в usr/bin
         std::cout << "udav не ініціалізовано, тож вам не потрібно використовувати --uninit" << std::endl;
     }
 }
 
 // Функція для виводу довідкової інформації
-void displayHelp() {
+void displayHelp()
+{
     cout << "\e[1mUsage: ./udav [options]\e[0m" << endl;
     cout << "\n";
 
@@ -222,7 +287,7 @@ void displayHelp() {
     cout << "\n";
     cout << "  \e[1m./udav --uninit\e[0m or \e[1m./udav -u\e[0m" << endl;
     cout << "\n";
-    
+
     cout << "\e[1mExamples:\e[0m" << endl;
     cout << "\n";
     cout << "  Standard run for the file \"example.udav\":" << endl;
