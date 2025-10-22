@@ -1,0 +1,6 @@
+src/udav
+src/*.py
+
+.vscode
+venv
+.mypy_cache

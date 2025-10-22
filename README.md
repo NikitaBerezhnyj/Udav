@@ -5,7 +5,7 @@ Udav repository has [Ukrainian :ukraine:](#мова-програмування-�
 # Мова програмування Удав :ukraine:
 
 <p align='center'>
-  <img src='./icon.png' alt='Udav icon' style="width:50%">
+  <img src='./assets/icon.png' alt='Udav icon' style="width:50%">
 </p>
 
 **_Мова програмування Удав_** - це жартівлива мова програмування, створена на основі Python. Ідея виникла, коли мій друг, не програміст, назвав Python "Удавом". З тих пір у нас в компанії ходив прикол про "Удава".
@@ -301,7 +301,7 @@ g++ compiler.cpp -o udav
 # Programming language Udav :uk:
 
 <p align='center'>
-  <img src='./icon.png' alt='Udav icon' style="width:50%">
+  <img src='./assets/icon.png' alt='Udav icon' style="width:50%">
 </p>
 
 **_Programming language Udav_** is a comic programming language based on Python. The idea came about when a non-programmer friend of mine called Python "Boa". Since then, we've had a joke about Boa in our company.

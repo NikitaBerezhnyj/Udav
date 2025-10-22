@@ -8,7 +8,6 @@
 
 using namespace std;
 
-// Оголошення прототипів допоміжних функцій
 vector<string> tokenize(const string &line);
 string translate(const string &word);
 string translateLine(const string &line);
@@ -16,7 +15,6 @@ void initialize();
 void uninitialize();
 void displayHelp();
 
-// Ключові слова Удава та їх переклади на Python
 unordered_map<string, string> keywords = {
     {"друк", "print"},
     {"ввід", "input"},
@@ -66,10 +64,11 @@ int main(int argc, char *argv[])
 {
     if (argc < 2)
     {
-        std::cerr << "Usage: " << argv[0] << " <input_file> [-o <output_file>]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <input_file> [-o <output_file>] [-b | --build]" << std::endl;
         return 1;
     }
 
+    bool isBuilding = false;
     std::string inputFileName = argv[1];
     std::string outputFileName = "program.py";
 
@@ -89,10 +88,9 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // Пошук аргументу "-o" та встановлення імені вихідного файлу
     for (int i = 2; i < argc; ++i)
     {
-        if (std::string(argv[i]) == "-o" && i + 1 < argc)
+        if ((std::string(argv[i]) == "-o" || std::string(argv[i]) == "-output") && i + 1 < argc)
         {
             outputFileName = argv[i + 1];
             outputFileName += ".py";
@@ -103,9 +101,12 @@ int main(int argc, char *argv[])
             argc -= 2;
             break;
         }
+        if (std::string(argv[i]) == "--build" || std::string(argv[i]) == "-b")
+        {
+            isBuilding = true;
+        }
     }
 
-    // Відкриття вхідного файлу
     std::ifstream inputFile(inputFileName);
     if (!inputFile.is_open())
     {
@@ -113,32 +114,60 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Відкриття вихідного файлу
-    std::ofstream outputFile(outputFileName);
-    if (!outputFile.is_open())
-    {
-        std::cerr << "Unable to open output file: " << outputFileName << std::endl;
-        return 1;
-    }
-
-    // Зчитування та переклад коду
+    std::ostringstream translatedCode;
     std::string line;
     while (getline(inputFile, line))
     {
-        outputFile << translateLine(line) << endl;
+        translatedCode << translateLine(line) << std::endl;
     }
 
-    // Закриття файлів
     inputFile.close();
-    outputFile.close();
 
-    // Виконання перекладеного Python коду
-    std::string start_command = "python " + outputFileName;
-    system(start_command.c_str());
+    if (isBuilding)
+    {
+        std::ofstream outputFile(outputFileName);
+        if (!outputFile.is_open())
+        {
+            std::cerr << "Unable to open output file: " << outputFileName << std::endl;
+            return 1;
+        }
+        outputFile << translatedCode.str();
+        outputFile.close();
+        std::cout << "Python file created: " << outputFileName << std::endl;
+    }
+    else
+    {
+        std::string code = translatedCode.str();
+        std::string escapedCode;
+
+        for (char c : code)
+        {
+            if (c == '"')
+            {
+                escapedCode += "\\\"";
+            }
+            else if (c == '\\')
+            {
+                escapedCode += "\\\\";
+            }
+            else
+            {
+                escapedCode += c;
+            }
+        }
+
+        std::string command = "python -c \"" + escapedCode + "\"";
+        int result = system(command.c_str());
+        if (result != 0)
+        {
+            std::cerr << "Error executing Python code." << std::endl;
+            return 1;
+        }
+    }
+
     return 0;
 }
 
-// Функція для токенізації тексту
 vector<string> tokenize(const string &line)
 {
     vector<string> tokens;
@@ -151,7 +180,6 @@ vector<string> tokenize(const string &line)
     return tokens;
 }
 
-// Функція для перекладу токенів
 string translate(const string &word)
 {
     auto it = keywords.find(word);
@@ -162,7 +190,6 @@ string translate(const string &word)
     return word;
 }
 
-// Функція перекладу цілого рядка
 string translateLine(const string &line)
 {
     stringstream translatedLine;
@@ -230,41 +257,32 @@ string translateLine(const string &line)
     return translatedLine.str();
 }
 
-// Функція для ініціалізації
 void initialize()
 {
-    // Перевіряємо, чи існує файл udav у usr/bin
     if (std::filesystem::exists("/usr/bin/udav"))
     {
-        // Файл udav існує
         std::cout << "udav вже ініціалізовано" << std::endl;
     }
     else
     {
-        // Файл udav не існує
         system("sudo cp udav /usr/bin");
         std::cout << "udav ініціалізовано" << std::endl;
     }
 }
 
-// Функція для скасування ініціалізації
 void uninitialize()
 {
-    // Перевіряємо, чи існує файл udav у usr/bin
     if (std::filesystem::exists("/usr/bin/udav"))
     {
-        // Файл udav існує в usr/bin
         system("sudo rm /usr/bin/udav");
         std::cout << "ініціалізацію udav скасовано" << std::endl;
     }
     else
     {
-        // Файл udav не існує в usr/bin
         std::cout << "udav не ініціалізовано, тож вам не потрібно використовувати --uninit" << std::endl;
     }
 }
 
-// Функція для виводу довідкової інформації
 void displayHelp()
 {
     cout << "\e[1mUsage: ./udav [options]\e[0m" << endl;
@@ -273,6 +291,8 @@ void displayHelp()
     cout << "\e[1mOptions:\e[0m" << endl;
     cout << "\n";
     cout << "  -h --help       Display this help message" << endl;
+    cout << "  -b --build      Build a source python file" << endl;
+    cout << "  -o --output     Set the output file name" << endl;
     cout << "  -i --init       Initialising udav to use it in any folder" << endl;
     cout << "  -u --uninit     Cancel initialization udav if you no longer need to use it" << endl;
     cout << "\n";
@@ -293,6 +313,10 @@ void displayHelp()
     cout << "  Standard run for the file \"example.udav\":" << endl;
     cout << "\n";
     cout << "  \e[1mudav example.udav\e[0m" << endl;
+    cout << "\n";
+    cout << "  Build the file \"example.udav\" to python file:" << endl;
+    cout << "\n";
+    cout << "  \e[1mudav example.udav -o my_file -b\e[0m" << endl;
     cout << "\n";
 
     cout << "\e[1mDescription:\e[0m" << endl;
