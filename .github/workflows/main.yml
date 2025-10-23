@@ -28,21 +28,24 @@ jobs:
 
       - name: Check existing releases
         id: check_release
+        shell: bash
         run: |
           CURRENT_VERSION=${{ steps.get_version.outputs.version }}
           echo "Current version: $CURRENT_VERSION"
 
-          RELEASES=$(gh release list --limit 100 | awk '{print $1}')
+          # Отримуємо список релізів (якщо їх немає, RELEASES буде порожнім)
+          RELEASES=$(gh release list --limit 100 | awk '{print $1}' || true)
 
           if echo "$RELEASES" | grep -qx "$CURRENT_VERSION"; then
-            echo "Version already exists, incrementing patch..."
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-            PATCH=$((PATCH + 1))
-            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-            echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Version already exists, incrementing patch..."
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           else
-            echo "Version not found, using current version."
-            echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Version not found, using current version."
+          echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
