@@ -78,7 +78,7 @@ jobs:
       - name: Get version from version.hpp
         id: get_version
         run: |
-          VERSION=$(grep -oP '(?<=UDAV_VERSION ")[^"]+' src/version.hpp)
+          VERSION=$(grep -oP '(?<=UDAV_VERSION ")[^"]+' src/includes/version.hpp)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
