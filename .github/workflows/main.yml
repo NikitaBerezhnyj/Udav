@@ -22,7 +22,7 @@ jobs:
       - name: Extract version from version.hpp
         id: get_version
         run: |
-          VERSION=$(grep -oP '(?<=UDAV_VERSION ")[^"]+' src/version.hpp)
+          VERSION=$(grep 'UDAV_VERSION' src/version.hpp | cut -d '"' -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check existing releases
