@@ -21,6 +21,7 @@ jobs:
 
       - name: Extract version from version.hpp
         id: get_version
+        shell: bash
         run: |
           VERSION=$(grep 'UDAV_VERSION' src/version.hpp | cut -d '"' -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -42,7 +43,6 @@ jobs:
           else
             echo "Version not found, using current version."
             echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
