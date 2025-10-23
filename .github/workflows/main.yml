@@ -47,17 +47,17 @@ jobs:
           BIN_FILE=$(find build -type f -iname "udav*" | head -n 1)
 
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            pwsh -Command "Compress-Archive -Path '$BIN_FILE' -DestinationPath 'dist/UDAV-windows-$VERSION.zip'"
+            pwsh -Command "Compress-Archive -Path '$BIN_FILE' -DestinationPath 'dist/udav-windows-$VERSION.zip'"
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            tar -czf dist/UDAV-macos-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
+            tar -czf dist/udav-macos-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
           else
-            tar -czf dist/UDAV-linux-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
+            tar -czf dist/udav-linux-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
           fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: UDAV-${{ matrix.os }}
+          name: udav-${{ matrix.os }}
           path: dist/*
 
   release:
@@ -85,8 +85,7 @@ jobs:
         run: |
           VERSION=${{ steps.get_version.outputs.version }}
 
-          # Створюємо реліз (ігноруємо помилку якщо вже є)
-          gh release create "$VERSION" --title "UDAV v$VERSION" --notes "Automated multi-platform release" || true
+          gh release create "$VERSION" --title "udav v$VERSION" --notes "Automated multi-platform release" || true
 
           find ./artifacts -type f | while read file; do
           gh release upload "$VERSION" "$file"
