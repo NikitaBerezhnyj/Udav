@@ -1,5 +1,9 @@
 name: Build and Release UDAV
 
+permissions:
+  contents: write
+  packages: write
+
 on:
   push:
     branches:
@@ -9,7 +13,7 @@ on:
       - prod
 
 jobs:
-  build-and-release:
+  build-and-package:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -21,67 +25,70 @@ jobs:
 
       - name: Extract version from version.hpp
         id: get_version
+        shell: bash
         run: |
-          VERSION=$(grep -oP '(?<=UDAV_VERSION ")[^"]+' src/version.hpp)
+          VERSION=$(grep 'UDAV_VERSION' src/includes/version.hpp | cut -d '"' -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Check existing releases
-        id: check_release
-        run: |
-          CURRENT_VERSION=${{ steps.get_version.outputs.version }}
-          echo "Current version: $CURRENT_VERSION"
-
-          RELEASES=$(gh release list --limit 100 | awk '{print $1}')
-
-          if echo "$RELEASES" | grep -qx "$CURRENT_VERSION"; then
-            echo "Version already exists, incrementing patch..."
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-            PATCH=$((PATCH + 1))
-            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-            echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          else
-            echo "Version not found, using current version."
-            echo "new_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Configure and Build project
+        shell: bash
         run: |
           mkdir -p build
           cd build
           cmake ..
           cmake --build . --config Release
 
-      - name: Upload build artifact
+      - name: Package build
+        shell: bash
+        run: |
+          mkdir -p dist
+          VERSION=${{ steps.get_version.outputs.version }}
+
+          BIN_FILE=$(find build -type f -iname "udav*" | head -n 1)
+
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            pwsh -Command "Compress-Archive -Path '$BIN_FILE' -DestinationPath 'dist/udav-windows-$VERSION.zip'"
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            tar -czf dist/udav-macos-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
+          else
+            tar -czf dist/udav-linux-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
+          fi
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: UDAV-${{ matrix.os }}
-          path: build/
+          name: udav-${{ matrix.os }}
+          path: dist/*
 
   release:
     runs-on: ubuntu-latest
-    needs: build-and-release
+    needs: build-and-package
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download all build artifacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
-      - name: Get version from version.hpp
+      - name: Get version
         id: get_version
+        shell: bash
         run: |
-          VERSION=$(grep -oP '(?<=UDAV_VERSION ")[^"]+' src/version.hpp)
+          VERSION=$(grep 'UDAV_VERSION' src/includes/version.hpp | cut -d '"' -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release and upload files
+        shell: bash
         run: |
           VERSION=${{ steps.get_version.outputs.version }}
-          echo "Publishing release: $VERSION"
-          gh release create "$VERSION" ./artifacts/** --title "UDAV v$VERSION" --notes "Automated multi-platform release"
+
+          gh release create "$VERSION" --title "udav v$VERSION" --notes "Automated multi-platform release" || true
+
+          find ./artifacts -type f | while read file; do
+          gh release upload "$VERSION" "$file"
+          done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
