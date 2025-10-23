@@ -85,10 +85,11 @@ jobs:
         run: |
           VERSION=${{ steps.get_version.outputs.version }}
 
+          # Створюємо реліз (ігноруємо помилку якщо вже є)
           gh release create "$VERSION" --title "UDAV v$VERSION" --notes "Automated multi-platform release" || true
 
-          for file in ./artifacts/*; do
-            gh release upload "$VERSION" "$file"
+          find ./artifacts -type f | while read file; do
+          gh release upload "$VERSION" "$file"
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
