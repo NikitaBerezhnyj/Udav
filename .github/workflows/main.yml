@@ -47,7 +47,7 @@ jobs:
           BIN_FILE=$(find build -type f -iname "udav*" | head -n 1)
 
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            zip -j dist/UDAV-windows-$VERSION.zip "$BIN_FILE"
+            pwsh -Command "Compress-Archive -Path '$BIN_FILE' -DestinationPath 'dist/UDAV-windows-$VERSION.zip'"
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             tar -czf dist/UDAV-macos-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
           else
