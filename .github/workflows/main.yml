@@ -23,7 +23,7 @@ jobs:
         id: get_version
         shell: bash
         run: |
-          VERSION=$(grep 'UDAV_VERSION' src/version.hpp | cut -d '"' -f2)
+          VERSION=$(grep 'UDAV_VERSION' src/includes/version.hpp | cut -d '"' -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check existing releases
