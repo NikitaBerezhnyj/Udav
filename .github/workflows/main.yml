@@ -31,6 +31,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Configure and Build project
+        shell: bash
         run: |
           mkdir -p build
           cd build
@@ -42,12 +43,15 @@ jobs:
         run: |
           mkdir -p dist
           VERSION=${{ steps.get_version.outputs.version }}
+
+          BIN_FILE=$(find build -type f -iname "udav*" | head -n 1)
+
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            zip -j dist/UDAV-windows-$VERSION.zip build/Release/UDAV.exe
+            zip -j dist/UDAV-windows-$VERSION.zip "$BIN_FILE"
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            tar -czf dist/UDAV-macos-$VERSION.tar.gz -C build UDAV
+            tar -czf dist/UDAV-macos-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
           else
-            tar -czf dist/UDAV-linux-$VERSION.tar.gz -C build UDAV
+            tar -czf dist/UDAV-linux-$VERSION.tar.gz -C $(dirname "$BIN_FILE") $(basename "$BIN_FILE")
           fi
 
       - name: Upload artifact
